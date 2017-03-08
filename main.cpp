@@ -3,6 +3,8 @@
 #define WIDE 800
 #define HIGH 600
 
+#define TILESIZE 32
+
 int main()
 {
   sf::RenderWindow window(sf::VideoMode(WIDE,HIGH),"Adventure!");
@@ -13,9 +15,15 @@ circle.setFillColor(sf::Color::Yellow);
 
 circle.setPosition(100,100);
 
-  sf::RectangleShape hero(sf::Vector2f(11,11));
-  hero.setFillColor(sf::Color::Black);
-  hero.setPosition(400,300);
+  sf::Texture hero_texture;
+  if(!hero_texture.loadFromFile("assets/hero.png"))
+  {
+      std::cout << "Error loading hero texture!" << std::endl;
+  }
+  sf::Sprite hero;
+  hero.setTexture(hero_texture);
+  hero.Scale(sf::Vector2f(2,2));
+
 int circleDir = 0;
 double heroSpeed = .5;
 
@@ -34,7 +42,7 @@ while(window.isOpen())
     {
       hero.move(0,-heroSpeed);
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && hero.getPosition().y < HIGH-hero.getSize().y)
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) && hero.getPosition().y < HIGH-TILESIZE)
     {
       hero.move(0,heroSpeed);
     }
@@ -42,7 +50,7 @@ while(window.isOpen())
     {
       hero.move(-heroSpeed,0);
     }
-    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && hero.getPosition().x < WIDE-hero.getSize().x)
+    if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right) && hero.getPosition().x < WIDE-TILESIZE)
     {
       hero.move(heroSpeed,0);
     }
