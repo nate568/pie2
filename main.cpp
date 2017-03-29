@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include <vector>
 
@@ -42,9 +43,19 @@ for(int i=0; i<tileH; i++)
   map.push_back(temp);
 }
 
-map[12][3] = true;
-map[12][4] = true;
+map[4][11] = true;
+map[14][2] = true;
 
+for(int i=0; i<tileH; i++)
+{
+  map[i][0] = true;
+  map[i][tileW-1] = true;
+}
+for(int i=0; i<tileW; i++)
+{
+  map[i][0] = true;
+  map[i][tileH-1] = true;
+}
   for(int i=0; i<map.size(); i++)
   {
     for(int j=0; j<map.size(); j++)
@@ -69,6 +80,14 @@ if(!enemy_texture.loadFromFile("assets/enemy2.png"))
 sf::Sprite enemy;
 enemy.setTexture(enemy_texture);
 enemy.setScale(sf::Vector2f(2,2));
+
+  sf::Texture homing_enemy_texture;
+  if(homing_enemy_texture.loadFromFile("assets/enemy2.png"))
+  {
+    std::cout << "1" << std::endl;
+  }
+  sf::Sprite homing_enemy;
+  homing_enemy.settexture(homing_enemy_texture);
 
 enemy.setPosition(100,100);
 
@@ -127,13 +146,39 @@ sf::Sprite grass;
 grass.setTexture(grass_texture);
 grass.setScale(sf::Vector2f(2,2));
 
+sf::SoundBuffer grunt_buffer;
+if(!grunt_buffer.loadFromFile("assets/grunt.wav"))
+{
+  std::cout << "1" << std::endl;
+}
+
+sf::Sound grunt;
+grunt.setBuffer(grunt_buffer);
+grunt.setPitch(100);
+
+sf::SoundBuffer music_buffer;
+if(!music_buffer.loadFromFile("assets/Lolita Compiex.wav"))
+{
+  std::cout << "1" << std::endl;
+}
+
+ sf::Sound music;
+ music.setBuffer(music_buffer);
+ music.setLoop(true);
 
 int enemyDir = 0;
 double heroSpeed = .5;
 
+double homingX = 0.5;
+double homingY = 0.5;
+double homingDist = 0;
+
 int lives = 10;
 bool takingDamage = false;
 
+hero.setPosition(TILESIZE*2, TILESIZE*2);
+enemy.setPosition(TILESIZE*4, TILESIZE*4);
+homing_enemy.setPosition(TILESIZE*6, TILESIZE*6);
 while(window.isOpen())
   {
     sf::Event event;
@@ -181,20 +226,21 @@ while(window.isOpen())
       }
     }
 
-    if(testWallColl(hero,wallArr))
+    if(hero.getGlobalBounds().intersects(enemy.getGlobalBounds()))
     {
 
       if(takingDamage == false)
       {
         lives--;
+        grunt.play();
         takingDamage = true;
       }
     }
-  else
-  {
+    else
+    {
   takingDamage = false;
-  }
-  //std::cout << lives << std::endl;
+    }
+  std::cout << lives << std::endl;
   livesDisp.setString(std::to_string(lives));
 
     window.clear(sf::Color::Blue);
@@ -216,6 +262,23 @@ while(window.isOpen())
     {
       enemyDir = 0;
     }
+
+      if(testWallColl(enemy, wallArr))
+      {
+        if(enemyDir == 0)
+        {
+          enemyDir = 1;
+        }
+        else
+        {
+          enemyDir = 0;
+        }
+      }
+
+
+
+
+
 
       for(int i=0; i<tileH ; i++)
       {
